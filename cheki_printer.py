@@ -8,17 +8,6 @@ import glob
 my_instax = instax.SP2(ip='192.168.0.251', port=8080, pinCode=1111,timeout=10)
 is_success = False
 
-try :
-    print(my_instax.getPrinterInformation())
-except instax.exceptions.ConnectError:
-    print('コネクションでエラーが生じました')
-    print('Wi-Fiの接続先を確認してください')
-    exit()
-except instax.exceptions.CommandTimedOutException:
-    print('接続がタイムアウトしました')
-    print('Wi-Fiの接続先を確認してください')
-    exit()
-
 def printProgress(count, total, status=''):
     logging.info(status)
     if "complete" in status:
@@ -61,7 +50,6 @@ for file_name in file_name_list:
             instax_image.loadImage('./files/' + file_name)
             instax_image.convertImage()
             encoded_image = instax_image.encodeImage()
-            print(my_instax.getPrinterInformation())
             my_instax.printPhoto(encoded_image, printProgress)
             # つらい感じの実装. successだったら継続. Timeout だったら殺す
             if is_success:
