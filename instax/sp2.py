@@ -11,7 +11,7 @@ from .packet import PacketFactory, Packet, SpecificationsCommand, \
     PrinterLockCommand, ResetCommand, PrepImageCommand, SendImageCommand, \
     Type83Command, Type195Command, LockStateCommand
 
-max_trials = 3
+max_trials = 1000
 trial_count = 0
 
 
@@ -82,34 +82,19 @@ class SP2:
 
     def sendCommand(self, commandPacket):
         """Send a command packet and returns the response."""
-        try:
-            encodedPacket = commandPacket.encodeCommand(self.currentTimeMillis, self.pinCode)
-        except Exception as err:
-            print("[エラー] A %s" % err)
-            return
-        try:
-            decodedCommand = self.packetFactory.decode(encodedPacket)
-        except Exception as err:
-            print("[エラー] AA %s" % err)
-        try:
-            decodedCommand.printDebug()
-        except Exception as err:
-            print("[エラー] AAA %s" % err)
-        try:
-            reply = self.send_and_recieve(encodedPacket, 5)
-        except Exception as err:
-            print("[エラー] AAAA %s" % err)
+        encodedPacket = commandPacket.encodeCommand(self.currentTimeMillis, self.pinCode)
+        decodedCommand = self.packetFactory.decode(encodedPacket)
+        decodedCommand.printDebug()
+        reply = self.send_and_recieve(encodedPacket, 5)
+
         try:
             print(reply.data)
             decodedResponse = self.packetFactory.decode(reply.data)
         except Exception as err:
-            print(decodedResponse)
             print("[エラー] AAAAA %s" % err)
-            return 
-        try:
-            decodedResponse.printDebug()
-        except Exception as err:
-            print("[エラー] !AAAAAA! %s" % err)
+            return
+
+        decodedResponse.printDebug()
 
         return decodedResponse
 
@@ -233,6 +218,9 @@ class SP2:
         return printerInformation
 
     def printPhoto(self, imageBytes, progress):
+        global max_trials
+        global trial_count
+
         """Print a Photo to the Printer."""
         progressTotal = 100
         progress(0, progressTotal, status='Connecting to instax Printer.           ')
@@ -240,8 +228,6 @@ class SP2:
         err = self.connect()
         if err is not None:
             progress(100, progressTotal, status='Print is Failed!                       \n')
-            global max_trials
-            global trial_count
             trial_count += 1
             if trial_count < max_trials:
                 print("再接続します")
@@ -285,21 +271,23 @@ class SP2:
         progress(70, progressTotal, status='Image Print Started.                       ')
         # Send Print State Req
         time.sleep(1)
-        try:
-            self.connect()
-        except Exception as err:
-            print("[エラー] ! %s" % err)
-        try:
-            self.sendLockStateCommand()
-        except Exception as err:
-            print("[エラー] !! %s" % err)
-        try:
-            self.getPrinterVersion()
-        except Exception as err:
-            print("[エラー] !!! %s" % err)
+        self.connect()
+        self.sendLockStateCommand()
+        self.getPrinterVersion()
+
         try:
             self.getPrinterModelName()
         except Exception as err:
+            progress(100, progressTotal, status='Print is Failed!                       \n')
+            trial_count += 1
+            if trial_count < max_trials:
+                print("再送します")
+                self.sendResetCommand()
+                err = self.printPhoto(imageBytes, progress)
+                if err is not None:
+                    return err
+                else:
+                    return err
             print("[エラー] !!!! %s" % err)
 
         progress(90, progressTotal, status='Checking status of print.                    ')
