@@ -263,16 +263,30 @@ class SP2:
         progress(70, progressTotal, status='Image Print Started.                       ')
         # Send Print State Req
         time.sleep(1)
-        self.connect()
-        self.sendLockStateCommand()
-        self.getPrinterVersion()
-        self.getPrinterModelName()
+        try:
+            self.connect()
+        except Exception as err:
+            print("[エラー] ! %s" % err)
+        try:
+            self.sendLockStateCommand()
+        except Exception as err:
+            print("[エラー] !! %s" % err)
+        try:
+            self.getPrinterVersion()
+        except Exception as err:
+            print("[エラー] !!! %s" % err)
+        try:
+            self.getPrinterModelName()
+        except Exception as err:
+            print("[エラー] !!!! %s" % err)
+
         progress(90, progressTotal, status='Checking status of print.                    ')
         printStatus = self.checkPrintStatus(30)
         if printStatus is True:
             progress(100, progressTotal, status='Print is complete!                       \n')
         else:
             progress(100, progressTotal, status='Timed out waiting for print..            \n')
+        self.sendResetCommand()
         self.close()
 
     def checkPrintStatus(self, timeout=30):
