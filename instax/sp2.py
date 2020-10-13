@@ -290,7 +290,7 @@ class SP2:
         if printStatus is True:
             progress(100, progressTotal, status='Print is complete!                       \n')
         else:
-            progress(100, progressTotal, status='Timed out waiting for print..            \n')
+            progress(100, progressTotal, status='用紙切れの可能性が高いです..            \n')
         self.close()
 
     def checkPrintStatus(self, timeout=30):
