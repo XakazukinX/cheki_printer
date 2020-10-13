@@ -82,13 +82,32 @@ class SP2:
 
     def sendCommand(self, commandPacket):
         """Send a command packet and returns the response."""
-        encodedPacket = commandPacket.encodeCommand(self.currentTimeMillis,
-                                                    self.pinCode)
-        decodedCommand = self.packetFactory.decode(encodedPacket)
-        decodedCommand.printDebug()
-        reply = self.send_and_recieve(encodedPacket, 5)
-        decodedResponse = self.packetFactory.decode(reply.data)
-        decodedResponse.printDebug()
+        try:
+            encodedPacket = commandPacket.encodeCommand(self.currentTimeMillis, self.pinCode)
+        except Exception as err:
+            print("[エラー] A %s" % err)
+            return
+        try:
+            decodedCommand = self.packetFactory.decode(encodedPacket)
+        except Exception as err:
+            print("[エラー] AA %s" % err)
+        try:
+            decodedCommand.printDebug()
+        except Exception as err:
+            print("[エラー] AAA %s" % err)
+        try:
+            reply = self.send_and_recieve(encodedPacket, 5)
+        except Exception as err:
+            print("[エラー] AAAA %s" % err)
+        try:
+            decodedResponse = self.packetFactory.decode(reply.data)
+        except Exception as err:
+            print("[エラー] AAAAA %s" % err)
+        try:
+            decodedResponse.printDebug()
+        except Exception as err:
+            print("[エラー] !AAAAAA! %s" % err)
+
         return decodedResponse
 
     def getPrinterVersion(self):
