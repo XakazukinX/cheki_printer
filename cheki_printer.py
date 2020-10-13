@@ -5,20 +5,24 @@ import logging
 import csv
 import glob
 
-my_instax = instax.SP2(ip='192.168.0.251', port=8080, pinCode=1111,timeout=10)
+my_instax = instax.SP2(ip='192.168.0.251', port=8080, pinCode=1111, timeout=10)
 is_success = False
 
-def printProgress(count, total, status=''):
+print('start cheki print')
+
+
+def print_progress(_count, total, status=''):
     logging.info(status)
     if "complete" in status:
-        global is_success # 大域変数にアクセス
+        global is_success  # 大域変数にアクセス
         is_success = True
     bar_len = 60
-    filled_len = int(round(bar_len * count / float(total)))
-    percents = round(100.0 * count / float(total), 1)
+    filled_len = int(round(bar_len * _count / float(total)))
+    percents = round(100.0 * _count / float(total), 1)
     bar = '=' * filled_len + '-' * (bar_len - filled_len)
     sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
     sys.stdout.flush()  # As suggested by Rom Ruben (see: http://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console/27871113#comment50529068_27871113)
+
 
 instax_image = instax.InstaxImage(type=2)
 log_path = './files/printout.log'
@@ -30,9 +34,9 @@ try:
     printed_list = list(map(lambda x: x.replace('\n', ''), list(r_csv_file)))
     count = len(printed_list) + 1
     r_csv_file.close()
-    print('印刷を継続します')
+    print('continue')
 except:
-    print('初期作業を開始します')
+    print('error at create printed_list')
 
 w_csv_file = open(log_path, 'a')
 writer = csv.writer(w_csv_file, lineterminator='\n')
@@ -40,28 +44,43 @@ writer = csv.writer(w_csv_file, lineterminator='\n')
 file_path_list = glob.glob("./files/*.jpg") + glob.glob("./files/*.png")
 file_name_list = (map(lambda x: x.replace('./files/', ''), file_path_list))
 
+print('start loop')
+
 for file_name in file_name_list:
     is_success = False
     if file_name in printed_list:
+        print(file_name)
         pass
     else:
         try:
-            print("%s枚目: %s" % (count, file_name))
-            instax_image.loadImage('./files/' + file_name)
-            instax_image.convertImage()
-            encoded_image = instax_image.encodeImage()
-            my_instax.printPhoto(encoded_image, printProgress)
-            # つらい感じの実装. successだったら継続. Timeout だったら殺す
+            print(r"%s枚目: %s" % (count, file_name))
+            instax_image.loadImage(file_name)
+            try:
+                instax_image.convert_image()
+            except Exception as err:
+                print(r"[エラー] 画像変換時にエラーが発生しました。 [%s]" % err)
+                break
+            try:
+                encoded_image = instax_image.encodeImage()
+            except Exception as err:
+                print(r"[エラー] 画像のエンコード時にエラーが発生しました。画像のサイズを確認してください。 [%s]" % err)
+                break
+
+            err = my_instax.printPhoto(encoded_image, print_progress)
+            # if err is not None:
+            #     print("???????")
+            #     w_csv_file.close()
+            #     break
             if is_success:
                 writer.writerow([file_name])
                 count += 1
             else:
-                print('印刷エラー. 用紙切れかも')
                 w_csv_file.close()
-                exit()
+                break
         except:
-            print('印刷エラー. 用紙切れかも')
+            print(sys.exc_info())
             w_csv_file.close()
             exit()
-
 w_csv_file.close()
+print("End")
+exit(0)

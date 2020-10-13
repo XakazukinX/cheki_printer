@@ -1,3 +1,6 @@
 files/*.png
 files/*.jpg
+/*.png
 files/printout.log
+.idea/*
+instax/__pycache__/
