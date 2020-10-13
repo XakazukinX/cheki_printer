@@ -15,6 +15,22 @@ max_trials = 1000
 trial_count = 0
 
 
+class Color:
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    PURPLE = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    END = '\033[0m'
+    BOLD = '\038[1m'
+    UNDERLINE = '\033[4m'
+    INVISIBLE = '\033[08m'
+    REVERCE = '\033[07m'
+
+
 class SP2:
     """SP2 Client interface."""
 
@@ -89,7 +105,7 @@ class SP2:
             reply = self.send_and_recieve(encodedPacket, 5)
             decodedResponse = self.packetFactory.decode(reply.data)
         except Exception as err:
-            print("[エラー] AAAAA %s" % err)
+            print("[エラー] なんらかのエラーが発生しました。再送します %s" % err)
             raise err
         decodedResponse.printDebug()
 
@@ -271,7 +287,7 @@ class SP2:
                 progress(0, progressTotal, status='Print is Failed!                       \n')
                 trial_count += 1
                 self.close()
-                print("[エラー] !!!! %s" % err)
+                print("[エラー] なんらかのエラーが発生しました。再送します。 %s" % err)
                 continue
             progress(90, progressTotal, status='Checking status of print.                    ')
             printStatus = self.checkPrintStatus(30)
