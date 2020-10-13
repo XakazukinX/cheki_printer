@@ -92,8 +92,7 @@ class SP2:
             decodedResponse = self.packetFactory.decode(reply.data)
         except Exception as err:
             print("[エラー] AAAAA %s" % err)
-            return
-
+            raise err
         decodedResponse.printDebug()
 
         return decodedResponse
@@ -254,28 +253,26 @@ class SP2:
         progress(30, progressTotal, status='Resetting Printer.                         ')
         self.sendResetCommand()
         self.close()
-
-        # Send the Image
-        time.sleep(1)
-        self.connect()
-        progress(40, progressTotal, status='About to send Image.                       ')
-        self.sendPrepImageCommand(16, 0, 1440000)
-        for segment in range(24):
-            start = segment * 60000
-            end = start + 60000
-            segmentBytes = imageBytes[start:end]
-            self.sendSendImageCommand(segment, bytes(segmentBytes))
-            progress(40 + segment, progressTotal, status=('Sent image segment %s.         ' % segment))
-        self.sendT83Command()
-        self.close()
-        progress(70, progressTotal, status='Image Print Started.                       ')
-        # Send Print State Req
-        time.sleep(1)
-        self.connect()
-        self.sendLockStateCommand()
-        self.getPrinterVersion()
-
         try:
+            # Send the Image
+            time.sleep(1)
+            self.connect()
+            progress(40, progressTotal, status='About to send Image.                       ')
+            self.sendPrepImageCommand(16, 0, 1440000)
+            for segment in range(24):
+                start = segment * 60000
+                end = start + 60000
+                segmentBytes = imageBytes[start:end]
+                self.sendSendImageCommand(segment, bytes(segmentBytes))
+                progress(40 + segment, progressTotal, status=('Sent image segment %s.         ' % segment))
+            self.sendT83Command()
+            self.close()
+            progress(70, progressTotal, status='Image Print Started.                       ')
+            # Send Print State Req
+            time.sleep(1)
+            self.connect()
+            self.sendLockStateCommand()
+            self.getPrinterVersion()
             self.getPrinterModelName()
         except Exception as err:
             progress(100, progressTotal, status='Print is Failed!                       \n')
