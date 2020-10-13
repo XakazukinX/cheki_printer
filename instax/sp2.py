@@ -82,13 +82,11 @@ class SP2:
 
     def sendCommand(self, commandPacket):
         """Send a command packet and returns the response."""
-        encodedPacket = commandPacket.encodeCommand(self.currentTimeMillis, self.pinCode)
-        decodedCommand = self.packetFactory.decode(encodedPacket)
-        decodedCommand.printDebug()
-        reply = self.send_and_recieve(encodedPacket, 5)
-
         try:
-            print(reply.data)
+            encodedPacket = commandPacket.encodeCommand(self.currentTimeMillis, self.pinCode)
+            decodedCommand = self.packetFactory.decode(encodedPacket)
+            decodedCommand.printDebug()
+            reply = self.send_and_recieve(encodedPacket, 5)
             decodedResponse = self.packetFactory.decode(reply.data)
         except Exception as err:
             print("[エラー] AAAAA %s" % err)
@@ -236,24 +234,25 @@ class SP2:
             else:
                 return err
         progress(10, progressTotal, status='Connected! - Sending Pre Print Commands.')
-        for x in range(1, 9):
-            self.sendPrePrintCommand(x)
-        self.close()
-
-        # Lock The Printer
         time.sleep(1)
-        self.connect()
-        progress(20, progressTotal, status='Locking Printer for Print.               ')
-        self.sendLockCommand(1)
-        self.close()
-
-        # Reset the Printer
-        time.sleep(1)
-        self.connect()
-        progress(30, progressTotal, status='Resetting Printer.                         ')
-        self.sendResetCommand()
-        self.close()
         try:
+            for x in range(1, 9):
+                self.sendPrePrintCommand(x)
+            self.close()
+
+            # Lock The Printer
+            time.sleep(1)
+            self.connect()
+            progress(20, progressTotal, status='Locking Printer for Print.               ')
+            self.sendLockCommand(1)
+            self.close()
+
+            # Reset the Printer
+            time.sleep(1)
+            self.connect()
+            progress(30, progressTotal, status='Resetting Printer.                         ')
+            self.sendResetCommand()
+            self.close()
             # Send the Image
             time.sleep(1)
             self.connect()
