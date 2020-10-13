@@ -1,4 +1,5 @@
 import os
+from typing import re
 
 import instax
 import sys
@@ -53,7 +54,8 @@ args = sys.argv
 file_path_list = glob.glob("./files/*.jpg") + glob.glob("./files/*.png")
 
 if (len(args) == 1) or (len(args) == 2 and args[1] != "random"):
-    file_path_list = sorted(glob.glob("./files/*.jpg") + glob.glob("./files/*.png"))
+    file_path_list = sorted(glob.glob("./files/*.jpg") + glob.glob("./files/*.png"),
+                            key=lambda val: int(re.sub("\\D", "", val)))
     print("Sorted")
 
 if os.name == 'nt':
