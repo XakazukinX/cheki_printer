@@ -1,3 +1,5 @@
+import os
+
 import instax
 import sys
 import time
@@ -40,15 +42,13 @@ except:
 
 w_csv_file = open(log_path, 'a')
 writer = csv.writer(w_csv_file, lineterminator='\n')
-
-file_path_list = glob.glob(r"./files/*.jpg") + glob.glob(r"./files/*.png")
-file_name_list = (map(lambda x: x.replace(r'./files/', ''), file_path_list))
+file_path_list = glob.glob("./files/*.jpg") + glob.glob("./files/*.png")
+if os.name == 'nt':
+    file_name_list = (map(lambda x: x.replace('./files\\', './files/'), file_path_list))
+elif os.name == 'posix':
+    print('on Mac or Linux')
 
 print('start loop')
-
-for file_name in file_name_list:
-    print('aaa')
-    print(file_name)
 
 for file_name in file_name_list:
     is_success = False
