@@ -291,7 +291,6 @@ class SP2:
             progress(100, progressTotal, status='Print is complete!                       \n')
         else:
             progress(100, progressTotal, status='Timed out waiting for print..            \n')
-        self.sendResetCommand()
         self.close()
 
     def checkPrintStatus(self, timeout=30):
