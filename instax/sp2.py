@@ -278,8 +278,6 @@ class SP2:
             trial_count += 1
             if trial_count < max_trials:
                 print("再送します")
-                self.sendResetCommand()
-                self.close()
                 err = self.printPhoto(imageBytes, progress)
                 if err is not None:
                     return err
