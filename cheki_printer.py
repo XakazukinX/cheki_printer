@@ -48,7 +48,14 @@ except:
 
 w_csv_file = open(log_path, 'a')
 writer = csv.writer(w_csv_file, lineterminator='\n')
+
+args = sys.argv
 file_path_list = glob.glob("./files/*.jpg") + glob.glob("./files/*.png")
+
+if (len(args) == 1) or (len(args) == 2 and args[1] != "random"):
+    file_path_list = sorted(glob.glob("./files/*.jpg") + glob.glob("./files/*.png"))
+    print("Sorted")
+
 if os.name == 'nt':
     file_name_list = (map(lambda x: x.replace('./files\\', './files/'), file_path_list))
     print('on Windows')
@@ -57,7 +64,8 @@ elif os.name == 'posix':
     print('on Mac or Linux')
 
 print('start loop')
-
+for file_name in file_name_list:
+    print(file_name)
 for file_name in file_name_list:
     is_success = False
     if file_name in printed_list:
