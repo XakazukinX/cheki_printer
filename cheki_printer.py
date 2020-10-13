@@ -67,8 +67,6 @@ elif os.name == 'posix':
 
 print('start loop')
 for file_name in file_name_list:
-    print(file_name)
-for file_name in file_name_list:
     is_success = False
     if file_name in printed_list:
         pass
