@@ -217,81 +217,72 @@ class SP2:
     def printPhoto(self, imageBytes, progress):
         global max_trials
         global trial_count
+        while trial_count < max_trials:
+            """Print a Photo to the Printer."""
+            progressTotal = 100
+            progress(0, progressTotal, status='Connecting to instax Printer.           ')
+            # Send Pre Print Commands
+            err = self.connect()
+            if err is not None:
+                progress(0, progressTotal, status='Print is Failed!                       \n')
+                trial_count += 1
+                continue
+            progress(10, progressTotal, status='Connected! - Sending Pre Print Commands.')
+            time.sleep(1)
+            try:
+                for x in range(1, 9):
+                    self.sendPrePrintCommand(x)
+                self.close()
 
-        """Print a Photo to the Printer."""
-        progressTotal = 100
-        progress(0, progressTotal, status='Connecting to instax Printer.           ')
-        # Send Pre Print Commands
-        err = self.connect()
-        if err is not None:
-            progress(100, progressTotal, status='Print is Failed!                       \n')
-            trial_count += 1
-            if trial_count < max_trials:
-                print("再接続します")
-                err = self.printPhoto(imageBytes, progress)
-                if err is not None:
-                    return err
+                # Lock The Printer
+                time.sleep(1)
+                self.connect()
+                progress(20, progressTotal, status='Locking Printer for Print.               ')
+                self.sendLockCommand(1)
+                self.close()
+
+                # Reset the Printer
+                time.sleep(1)
+                self.connect()
+                progress(30, progressTotal, status='Resetting Printer.                         ')
+                self.sendResetCommand()
+                self.close()
+                # Send the Image
+                time.sleep(1)
+                self.connect()
+                progress(40, progressTotal, status='About to send Image.                       ')
+                self.sendPrepImageCommand(16, 0, 1440000)
+                for segment in range(24):
+                    start = segment * 60000
+                    end = start + 60000
+                    segmentBytes = imageBytes[start:end]
+                    self.sendSendImageCommand(segment, bytes(segmentBytes))
+                    progress(40 + segment, progressTotal, status=('Sent image segment %s.         ' % segment))
+                self.sendT83Command()
+                self.close()
+                progress(70, progressTotal, status='Image Print Started.                       ')
+                # Send Print State Req
+                time.sleep(1)
+                self.connect()
+                self.sendLockStateCommand()
+                self.getPrinterVersion()
+                self.getPrinterModelName()
+            except Exception as err:
+                progress(0, progressTotal, status='Print is Failed!                       \n')
+                trial_count += 1
+                self.close()
+                print("[エラー] !!!! %s" % err)
+                continue
+            progress(90, progressTotal, status='Checking status of print.                    ')
+            printStatus = self.checkPrintStatus(30)
+            if printStatus is True:
+                progress(100, progressTotal, status='Print is complete!                       \n')
+                self.close()
+                break
             else:
-                return err
-        progress(10, progressTotal, status='Connected! - Sending Pre Print Commands.')
-        time.sleep(1)
-        try:
-            for x in range(1, 9):
-                self.sendPrePrintCommand(x)
-            self.close()
-
-            # Lock The Printer
-            time.sleep(1)
-            self.connect()
-            progress(20, progressTotal, status='Locking Printer for Print.               ')
-            self.sendLockCommand(1)
-            self.close()
-
-            # Reset the Printer
-            time.sleep(1)
-            self.connect()
-            progress(30, progressTotal, status='Resetting Printer.                         ')
-            self.sendResetCommand()
-            self.close()
-            # Send the Image
-            time.sleep(1)
-            self.connect()
-            progress(40, progressTotal, status='About to send Image.                       ')
-            self.sendPrepImageCommand(16, 0, 1440000)
-            for segment in range(24):
-                start = segment * 60000
-                end = start + 60000
-                segmentBytes = imageBytes[start:end]
-                self.sendSendImageCommand(segment, bytes(segmentBytes))
-                progress(40 + segment, progressTotal, status=('Sent image segment %s.         ' % segment))
-            self.sendT83Command()
-            self.close()
-            progress(70, progressTotal, status='Image Print Started.                       ')
-            # Send Print State Req
-            time.sleep(1)
-            self.connect()
-            self.sendLockStateCommand()
-            self.getPrinterVersion()
-            self.getPrinterModelName()
-        except Exception as err:
-            progress(100, progressTotal, status='Print is Failed!                       \n')
-            trial_count += 1
-            if trial_count < max_trials:
-                print("再送します")
-                err = self.printPhoto(imageBytes, progress)
-                if err is not None:
-                    return err
-                else:
-                    return err
-            print("[エラー] !!!! %s" % err)
-
-        progress(90, progressTotal, status='Checking status of print.                    ')
-        printStatus = self.checkPrintStatus(30)
-        if printStatus is True:
-            progress(100, progressTotal, status='Print is complete!                       \n')
-        else:
-            progress(100, progressTotal, status='用紙切れの可能性が高いです..            \n')
-        self.close()
+                progress(100, progressTotal, status='用紙切れの可能性が高いです..            \n')
+                self.close()
+                continue
 
     def checkPrintStatus(self, timeout=30):
         """Check the status of a print."""
