@@ -41,8 +41,8 @@ except:
 w_csv_file = open(log_path, 'a')
 writer = csv.writer(w_csv_file, lineterminator='\n')
 
-file_path_list = glob.glob("./files/*.jpg") + glob.glob("./files/*.png")
-file_name_list = (map(lambda x: x.replace('./files/', ''), file_path_list))
+file_path_list = glob.glob(r"./files/*.jpg") + glob.glob(r"./files/*.png")
+file_name_list = (map(lambda x: x.replace(r'./files/', ''), file_path_list))
 
 print('start loop')
 
