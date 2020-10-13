@@ -47,9 +47,12 @@ file_name_list = (map(lambda x: x.replace(r'./files/', ''), file_path_list))
 print('start loop')
 
 for file_name in file_name_list:
+    print('aaa')
+    print(file_name)
+
+for file_name in file_name_list:
     is_success = False
     if file_name in printed_list:
-        print(file_name)
         pass
     else:
         try:
