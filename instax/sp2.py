@@ -100,9 +100,12 @@ class SP2:
         except Exception as err:
             print("[エラー] AAAA %s" % err)
         try:
+            print(reply.data)
             decodedResponse = self.packetFactory.decode(reply.data)
         except Exception as err:
+            print(decodedResponse)
             print("[エラー] AAAAA %s" % err)
+            return 
         try:
             decodedResponse.printDebug()
         except Exception as err:
