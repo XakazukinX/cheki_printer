@@ -1,0 +1,1 @@
+python3 cheki_printer.py
