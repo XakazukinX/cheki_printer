@@ -299,7 +299,7 @@ class SP2:
                 progress(100, progressTotal, status='用紙切れの可能性が高いです..            \n')
                 self.close()
                 while True:
-                    inp = input('用紙を入れ終えたら エンターキーを入力してください>>')
+                    inp = input(Color.RED + '用紙を入れ終えたら エンターキーを入力してください>>' + Color.END)
                     if inp == '':
                         break
                 continue
