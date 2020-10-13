@@ -282,6 +282,10 @@ class SP2:
             else:
                 progress(100, progressTotal, status='用紙切れの可能性が高いです..            \n')
                 self.close()
+                while True:
+                    inp = input('用紙を入れ終えたら エンターキーを入力してください>>')
+                    if inp == '':
+                        break
                 continue
 
     def checkPrintStatus(self, timeout=30):

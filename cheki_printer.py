@@ -10,8 +10,11 @@ import glob
 my_instax = instax.SP2(ip='192.168.0.251', port=8080, pinCode=1111, timeout=10)
 is_success = False
 
+while True:
+    inp = input('印刷を開始するにはエンターキーを押してください>>')
+    if inp == '':
+        break
 print('start cheki print')
-
 
 def print_progress(_count, total, status=''):
     logging.info(status)
