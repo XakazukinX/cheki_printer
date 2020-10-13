@@ -45,7 +45,9 @@ writer = csv.writer(w_csv_file, lineterminator='\n')
 file_path_list = glob.glob("./files/*.jpg") + glob.glob("./files/*.png")
 if os.name == 'nt':
     file_name_list = (map(lambda x: x.replace('./files\\', './files/'), file_path_list))
+    print('on Windows')
 elif os.name == 'posix':
+    file_name_list = (map(lambda x: x.replace('./files\\', './files/'), file_path_list))
     print('on Mac or Linux')
 
 print('start loop')
