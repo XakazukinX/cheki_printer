@@ -7,6 +7,7 @@ import time
 import logging
 import csv
 import glob
+import random
 
 from instax.sp2 import Color
 
@@ -57,6 +58,8 @@ if (len(args) == 1) or (len(args) == 2 and args[1] != "random"):
     file_path_list = sorted(glob.glob("./files/*.jpg") + glob.glob("./files/*.png"),
                             key=lambda val: int(re.sub("\\D", "", val)))
     print("Sorted")
+elif (len(args) > 1) and (args[1] == "random"):
+    random.shuffle(file_path_list)
 
 if os.name == 'nt':
     file_name_list = (map(lambda x: x.replace('./files\\', './files/'), file_path_list))
@@ -65,6 +68,8 @@ elif os.name == 'posix':
     file_name_list = (map(lambda x: x.replace('./files\\', './files/'), file_path_list))
     print('on Mac or Linux')
 
+for file_name in file_name_list:
+    print(file_name)
 print('start loop')
 for file_name in file_name_list:
     is_success = False
